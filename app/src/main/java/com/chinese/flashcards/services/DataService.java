@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 
 import com.chinese.flashcards.R;
 import com.chinese.flashcards.models.ApplicationContext;
@@ -15,6 +16,7 @@ import com.chinese.flashcards.models.Card;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -52,7 +54,10 @@ public class DataService extends ApplicationContext {
         //request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Test");
         final long downloadID = this.downloadManager.enqueue(request);
 
-        OnDownloadCompleted(downloadID);
+        try {
+            OnDownloadCompleted(downloadID);
+        } catch (Exception ex){}
+
         // Setup receiver to wait for download completion
 //        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 //        BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -83,7 +88,7 @@ public class DataService extends ApplicationContext {
     //
     // @TODO Fix Download - cannot read downloaded file
     //
-    private boolean OnDownloadCompleted(long downloadID) {
+    private boolean OnDownloadCompleted(long downloadID) throws FileNotFoundException {
         Boolean downloadStatus = null;
 
         while (downloadStatus == null) {
@@ -94,17 +99,15 @@ public class DataService extends ApplicationContext {
             if(c != null && c.moveToFirst()) {
                 int statusIndex     = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
                 int downloadIDIndex = c.getColumnIndex(DownloadManager.COLUMN_ID);
-                String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                Uri downloadedFileUri = Uri.parse(uriString);
+
                 if((c.getInt(statusIndex) == DownloadManager.STATUS_SUCCESSFUL) && (c.getLong(downloadIDIndex) == downloadID)){
-                    //Uri downloadedFileUri = downloadManager.getUriForDownloadedFile(downloadID);
                     String filename       = getContext().getResources().getString(R.string.DictionaryFileName);
-                    String downloadedFilePath = "/" + downloadedFileUri.getAuthority() + downloadedFileUri.getPath();
+                    ParcelFileDescriptor downloadedFile = this.downloadManager.openDownloadedFile(downloadID);
                     File dictionaryFile   = new File(this.getContext().getFilesDir() + "/" + filename);
-                    File downloadedFile   = new File(downloadedFilePath);
+
                     try {
                         copy(downloadedFile, dictionaryFile);
-                        downloadedFile.delete();
+                        downloadedFile.close();
                         isDataReady = downloadStatus = true;
                     } catch (IOException e) {
                         isDataReady = downloadStatus = false;
@@ -129,10 +132,6 @@ public class DataService extends ApplicationContext {
             String entry   = fileScanner.nextLine();
             String[] parts = entry.split(",");
 
-            //if (parts.length != 15) {
-            //    continue;
-           // }
-
             Card card = new Card(this.getContext(), parts[0], parts[1], parts[2]);
             cards.add(card);
         }
@@ -140,22 +139,12 @@ public class DataService extends ApplicationContext {
         return cards;
     }
 
-    public void save(File destFile) throws IOException {
-        destFile.deleteOnExit();
-        destFile.createNewFile();
-
-    }
-
-    public void copy(File sourceFile, File distFile) throws IOException {
-       // if (!sourceFile.exists() || !sourceFile.canRead() || !sourceFile.isFile()) {
-       //     return;
-        // }
-
+    public void copy(ParcelFileDescriptor sourceFile, File distFile) throws IOException {
         if (!distFile.exists()) {
             distFile.createNewFile();
         }
 
-        FileReader  sourceFileReader  = new FileReader(sourceFile);
+        FileInputStream sourceFileReader  = new FileInputStream(sourceFile.getFileDescriptor());
         Scanner     sourceFileScanner = new Scanner(sourceFileReader);
         PrintWriter destPrintWriter   = new PrintWriter(new FileWriter(distFile, false));
 
@@ -166,10 +155,6 @@ public class DataService extends ApplicationContext {
         sourceFileScanner.close();
         sourceFileReader.close();
         destPrintWriter.close();
-    }
-
-    public void update() {
-
     }
 
     public List<Card> getCards() throws IOException {
@@ -183,7 +168,6 @@ public class DataService extends ApplicationContext {
         // block until the file is downloaded and copied to storage service
         if (!this.isDataReady) {
             this.download(fileUrl);
-            while (!this.isDataReady) {}
         }
 
         return this.read(dictionaryFile);

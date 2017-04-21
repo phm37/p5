@@ -1,11 +1,14 @@
 package com.chinese.flashcards.activities;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,9 +19,10 @@ import com.chinese.flashcards.services.QuizService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements QuestionFragment.OnFragmentInteractionListener {
 
     private TextView mTextMessage;
 
@@ -55,8 +59,8 @@ public class QuizActivity extends AppCompatActivity {
 
         // Get information sent by MainActivity
         Bundle quizInfoBundle = getIntent().getExtras();
-        this.cardsCount       = quizInfoBundle.getInt("CardsCount");
-        this.quizLanguage     = quizInfoBundle.getString("Language");
+        this.cardsCount       = 10; //quizInfoBundle.getInt("CardsCount");
+        this.quizLanguage     = "English"; //quizInfoBundle.getString("Language");
 
         // Setup QuizService
         try {
@@ -94,25 +98,43 @@ public class QuizActivity extends AppCompatActivity {
         String chineseMode = this.getResources().getString(R.string.ChineseMode);
         String pinyinMode  = this.getResources().getString(R.string.PinyinMode);
 
+        getFragmentManager().beginTransaction();
+
         // Get View components
-        TextView questionView = (TextView)findViewById(R.id.question_text);
+        TextView   questionView              = (TextView)findViewById(R.id.question_text);
+        TextView   first_choice_mode         = (TextView)findViewById(R.id.first_choice_mode);
+        TextView   second_choice_mode        = (TextView)findViewById(R.id.second_choice_mode);
+        RadioGroup first_choice_radio_group  = (RadioGroup)findViewById(R.id.first_choice_radio_group);
+        RadioGroup second_choice_radio_group = (RadioGroup)findViewById(R.id.second_choice_radio_group);
+
 
         // Randomize choices
+        int rightChoiceIndex = new Random().nextInt(3);
 
         if (this.quizLanguage.equalsIgnoreCase(englishMode)) {
             questionView.setText(question.card.english);
+            first_choice_mode.setText(chineseMode);
+            // Add correct choice
+            RadioButton radioButton = (RadioButton)first_choice_radio_group.getChildAt(rightChoiceIndex);
+            radioButton.setText(this.quizService.getCard(question.choices.get(rightChoiceIndex)).chinese);
 
+            second_choice_mode.setText(pinyinMode);
         }
 
         else if (this.quizLanguage.equalsIgnoreCase(chineseMode)) {
             questionView.setText(question.card.chinese);
+
         }
 
         else if (this.quizLanguage.equalsIgnoreCase(pinyinMode)) {
             questionView.setText(question.card.pinyin);
         }
 
-        getFragmentManager().beginTransaction();
+
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }

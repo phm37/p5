@@ -5,7 +5,9 @@ import android.os.SystemClock;
 
 import com.chinese.flashcards.R;
 
-public class Card extends ApplicationContext {
+import java.io.Serializable;
+
+public class Card extends ApplicationContext implements Serializable {
 
     public final String chinese;
     public final String pinyin;

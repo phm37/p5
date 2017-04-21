@@ -4,19 +4,20 @@ import android.content.Context;
 
 import com.chinese.flashcards.R;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Question extends ApplicationContext {
+public class Question extends ApplicationContext implements Serializable {
     public final Card                    card;
     public final String                  language;
-    public final List<Card>              choices;
+    public final List<Integer>           choices;
     public       Map<String, String>     response; // Map<Language, Answer>
 
     private Boolean isCorrect;
 
-    public Question(Context c, Card card, String language, List<Card> choices) {
+    public Question(Context c, Card card, String language, List<Integer> choices) {
         super(c);
         this.card      = card;
         this.language  = language;

@@ -9,6 +9,7 @@ import com.chinese.flashcards.models.Question;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,20 +40,28 @@ public class QuizService extends ApplicationContext {
         }
 
         // Get Cards
-        int cardIndex         = this.getRandomCard(this.quiz.keySet());
-        int secondChoiceIndex = this.getRandomCard(cardIndex);
+        int           cardIndex  = this.getRandomCard(this.quiz.keySet());
+        List<Integer> allChoices = new ArrayList<Integer>();
 
+        while (allChoices.size() < 8) {
+            int choiceIndex = this.getRandomCard(allChoices);
+            allChoices.add(choiceIndex);
+
+        }
         // Create Question
         Question newQuestion = new Question(this.getContext(),
                                             this.cards.get(cardIndex),
                                             this.language,
-                                            Arrays.asList(this.cards.get(cardIndex),
-                                                    this.cards.get(secondChoiceIndex)));
+                                            allChoices);
 
         // Remember Question
         this.quiz.put(cardIndex, newQuestion);
 
         return newQuestion;
+    }
+
+    public Card getCard(int index) {
+        return this.cards.get(index);
     }
 
     public boolean quizDone() {
@@ -64,12 +73,12 @@ public class QuizService extends ApplicationContext {
 
         do {
             randIndex = new Random().nextInt(this.cards.size());
-        } while (excludedCard != randIndex);
+        } while (excludedCard == randIndex);
 
         return randIndex;
     }
 
-    private int getRandomCard(Set<Integer> excludedCards) {
+    private int getRandomCard(Collection<Integer> excludedCards) {
         int randIndex = -1;
 
         do {
