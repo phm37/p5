@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Chinese Flashcards</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- ResultsActivity Constants -->
+    <string name="HomeButtonTitle">Home</string>
+
+    <!-- Quiz Modes -->
+    <string name="EnglishMode">English</string>
+    <string name="PinyinMode">Pinyin</string>
+    <string name="ChineseMode">Chinese</string>
+
+    <!-- Dictionary FileName and default URL -->
+    <string name="DictionaryFileName">chidi.txt</string>
+    <string name="DefaultDictionaryUrl">http://people.cs.georgetown.edu/~bk620/chidi.txt</string>
+    <string name="DictionaryUrlPreferenceTitle">Dictionary URL</string>
+    <string name="DictionaryUrlPreference">dictionary_url_preference</string>
+
+    <!-- CountUpTimer Constants -->
+    <string name="TimeElapsed">Elapsed</string>
+
+    <!-- QuizActivity Constants -->
+    <string name="TimerDefaultValue">00:00:00</string>
+
+    <!-- QuizService Intent Constants -->
+    <string name="CardsCount">CardsCount</string>
+    <string name="QuizMode">QuizMode</string>
+    <string name="CorrectCount">CorrectCount</string>
+    <string name="WrongCount">WrongCount</string>
+    <string name="KnownWordsCount">KnownWordsCount</string>
+</resources>

@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="textAutoComplete"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:defaultValue="@string/DefaultDictionaryUrl"
+        android:key="@string/DictionaryUrlPreference"
+        android:title="@string/DictionaryUrlPreferenceTitle" />
+
+</PreferenceScreen>
